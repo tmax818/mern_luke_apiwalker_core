@@ -1,23 +1,53 @@
-import logo from './logo.svg';
+
 import './App.css';
+import {Route, Routes, useNavigate} from "react-router-dom";
+import {useEffect, useState} from "react";
+import axios from "axios";
+import {Search} from "./components/Search";
+
 
 function App() {
+    const [id, setId] = useState("1")
+    const [option, setOption] = useState("people")
+    const [options, setOptions] = useState([])
+    const navigate = useNavigate()
+
+    useEffect(() => {
+        axios.get('https://swapi.dev/api/').then(data => {
+            console.log(data)
+            let tempOptions = []
+            for(let option in data.data){
+                tempOptions.push(option)
+            }
+            setOptions(tempOptions)
+        }).catch(e => console.log(e))
+    }, [option, id])
+
+    const handleSubmit = e => {
+        e.preventDefault()
+        console.log(option)
+        navigate(`/${option}/${id}`)
+    }
+
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <form onSubmit={handleSubmit}>
+          search for: <select value={option} onChange={e => setOption(e.target.value)}>
+          {options.map(opt => (
+              <option value={opt}>{opt}</option>
+          ))}
+      </select>
+          <input type="number" onChange={e => setId(e.target.value)} />
+        <button>submit</button>
+      </form>
+
+        <Routes>
+            <Route path={'/:search/:id'} element={<Search/>}/>
+        </Routes>
+
+
+
     </div>
   );
 }
